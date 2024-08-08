@@ -1,16 +1,8 @@
 package org.example.catalogue.repository;
 
 import org.example.catalogue.entity.Product;
+import org.springframework.data.repository.CrudRepository;
 
-import java.util.List;
-import java.util.Optional;
-
-public interface ProductRepository {
-    List<Product> findAll();
-
-    Product save(Product product);
-
-    Optional<Product> findById(Integer productId);
-
-    void deleteById(Integer id);
+public interface ProductRepository extends CrudRepository<Product, Integer> {
+    Iterable<Product> findAllByTitleLikeIgnoreCase(String filter);
 }

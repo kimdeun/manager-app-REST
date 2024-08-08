@@ -1,11 +1,11 @@
 package org.example.catalogue.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.catalogue.entity.Product;
 import org.example.catalogue.repository.ProductRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -15,11 +15,16 @@ public class DefaulProductService implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
+    public Iterable<Product> findAllProducts(String filter) {
+        if (filter != null && !filter.isBlank()) {
+            return productRepository.findAllByTitleLikeIgnoreCase("%" + filter + "%");
+        } else {
+            return productRepository.findAll();
+        }
     }
 
     @Override
+    @Transactional
     public Product createProduct(String title, String details) {
         return productRepository.save(new Product(null, title, details));
     }
@@ -30,6 +35,7 @@ public class DefaulProductService implements ProductService {
     }
 
     @Override
+    @Transactional
     public void updateProduct(Integer id, String title, String details) {
         productRepository.findById(id)
                 .ifPresentOrElse(product -> {
@@ -41,6 +47,7 @@ public class DefaulProductService implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Integer id) {
         productRepository.deleteById(id);
     }

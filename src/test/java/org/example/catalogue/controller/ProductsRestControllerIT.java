@@ -45,6 +45,18 @@ class ProductsRestControllerIT {
     }
 
     @Test
+    @Sql("/sql/products.sql")
+    void findProducts_UserIsNotAuthorized_ReturnsForbidden() throws Exception {
+        var requestBuilder = MockMvcRequestBuilders.get("/catalogue-api/products")
+                .param("filter", "товар")
+                .with(jwt());
+
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void createProduct_RequestIsValid_ReturnsNewProduct() throws Exception {
         var requestBuilder = MockMvcRequestBuilders.post("/catalogue-api/products")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +76,7 @@ class ProductsRestControllerIT {
                                   "title": "Новый товар",
                                   "details": "Описание нового товара"
                                 }""")
-                        );
+                );
     }
 
     @Test

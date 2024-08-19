@@ -1,5 +1,11 @@
 package org.example.catalogue.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.catalogue.controller.payload.UpdateProductPayload;
@@ -30,11 +36,30 @@ public class ProductRestController {
     }
 
     @GetMapping
-    public Product findProduct(@ModelAttribute("product") Product product) {
+    @Operation(
+            responses = {
+                    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Product.class))),
+                    @ApiResponse(responseCode = "403", content = @Content()),
+                    @ApiResponse(responseCode = "404", content = @Content())
+            }
+    )
+    public Product findProduct(@Parameter(hidden = true) @ModelAttribute("product") Product product) {
         return product;
     }
 
     @PatchMapping
+    @Operation(
+            responses = {
+                    @ApiResponse(responseCode = "204", content = @Content()),
+                    @ApiResponse(responseCode = "400", content = @Content(
+                        examples = @ExampleObject("""
+                                {
+                                    "errors": ["Название товара должно быть от 3 до 50 символов"]
+                                }"""))),
+                    @ApiResponse(responseCode = "403", content = @Content()),
+                    @ApiResponse(responseCode = "404", content = @Content())
+            }
+    )
     public ResponseEntity<?> updateProduct(@PathVariable("productId") int productId,
                                            @Valid @RequestBody UpdateProductPayload payload,
                                            BindingResult bindingResult) throws BindException {
@@ -51,6 +76,13 @@ public class ProductRestController {
     }
 
     @DeleteMapping
+    @Operation(
+            responses = {
+                    @ApiResponse(responseCode = "204", content = @Content()),
+                    @ApiResponse(responseCode = "403", content = @Content()),
+                    @ApiResponse(responseCode = "404", content = @Content())
+            }
+    )
     public ResponseEntity<Void> deleteProduct(@PathVariable("productId") int productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
